@@ -1,117 +1,192 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SlideShell } from '../components/ui'
+import { Kicker } from '../components/ui'
 import { PEOPLE, KNOW_TRUST_POINT } from '../data/scenarios'
 
-function Track({
-  value,
-  suggested,
-  onChange,
-  revealed,
-}: {
-  value: number
-  suggested: number
-  onChange: (n: number) => void
-  revealed: boolean
-}) {
-  return (
-    <div className="relative py-3">
-      <div className="relative h-2.5 rounded-full" style={{ background: 'linear-gradient(90deg,#fda4af,#fcd34d,#6ee7b7)' }}>
-        {revealed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute -top-1 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-white"
-            style={{ left: `${suggested}%`, background: '#4f46e5' }}
-            title="A sensible spot"
-          />
-        )}
-      </div>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="absolute inset-x-0 top-1 h-6 w-full cursor-pointer appearance-none bg-transparent"
-        aria-label="Place this person"
-      />
-      <div className="mt-1 flex justify-between text-xs font-semibold" style={{ color: '#6b7280' }}>
-        <span>Just met online</span>
-        <span>Know them in real life</span>
-      </div>
-    </div>
-  )
+const EASE = [0.22, 1, 0.36, 1] as const
+
+function bucket(v: number) {
+  if (v < 20) return 'only just met them'
+  if (v < 45) return 'barely know them'
+  if (v < 70) return 'know them a bit'
+  return 'know them well'
 }
 
 export function KnowTrustSlide() {
-  const [pos, setPos] = useState<Record<string, number>>(() =>
-    Object.fromEntries(PEOPLE.map((p) => [p.id, 50])),
-  )
-  const [revealed, setRevealed] = useState<Set<string>>(new Set())
-  const allRevealed = revealed.size === PEOPLE.length
+  const [pi, setPi] = useState(0)
+  const [votes, setVotes] = useState<number[][]>(() => PEOPLE.map(() => []))
+  const [revealed, setRevealed] = useState<boolean[]>(() => PEOPLE.map(() => false))
+  const barRef = useRef<HTMLDivElement>(null)
+
+  const person = PEOPLE[pi]
+  const myVotes = votes[pi]
+  const avg = myVotes.length ? myVotes.reduce((a, b) => a + b, 0) / myVotes.length : null
+  const isRevealed = revealed[pi]
+  const lastPerson = pi === PEOPLE.length - 1
+  const allDone = revealed.every(Boolean)
+
+  function addVote(e: React.MouseEvent) {
+    const el = barRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+    setVotes((v) => v.map((arr, i) => (i === pi ? [...arr, pct] : arr)))
+  }
+  function clearVotes() {
+    setVotes((v) => v.map((arr, i) => (i === pi ? [] : arr)))
+  }
+  function reveal() {
+    setRevealed((r) => r.map((b, i) => (i === pi ? true : b)))
+  }
 
   return (
-    <SlideShell
-      kicker="Teach · know vs trust"
-      title="Do you really know them?"
-      intro="Drag each person along the line. Then reveal a sensible place for them and talk about why."
-      wide
-    >
-      <div className="grid gap-4 md:grid-cols-2">
-        {PEOPLE.map((p) => {
-          const isRev = revealed.has(p.id)
-          return (
-            <div key={p.id} className="glass p-5">
-              <p className="font-display text-lg font-bold" style={{ color: '#1b1c2a' }}>
-                {p.who}
-              </p>
-              <p className="mt-1 text-sm" style={{ color: '#4a4d63' }}>
-                {p.detail}
-              </p>
-              <Track
-                value={pos[p.id]}
-                suggested={p.suggested}
-                revealed={isRev}
-                onChange={(n) => setPos((s) => ({ ...s, [p.id]: n }))}
-              />
-              {!isRev ? (
-                <button
-                  onClick={() => setRevealed((s) => new Set(s).add(p.id))}
-                  className="mt-2 rounded-full px-4 py-1.5 text-sm font-bold"
-                  style={{ background: 'rgba(79,70,229,0.12)', color: '#4f46e5' }}
-                >
-                  Reveal
-                </button>
-              ) : (
-                <motion.p
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 rounded-xl px-3 py-2 text-sm"
-                  style={{ background: 'rgba(16,185,129,0.1)', color: '#065f46', lineHeight: 1.4 }}
-                >
-                  {p.teacherNote}
-                </motion.p>
-              )}
-            </div>
-          )
-        })}
-      </div>
+    <div className="m-auto w-full px-8 py-14 md:px-20">
+      <div className="mx-auto w-full max-w-4xl">
+        <Kicker>Know vs trust · vote as a class</Kicker>
+        <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(2rem, 4.6vw, 3.2rem)', lineHeight: 1.1 }}>
+          Do you really know them?
+        </h2>
 
-      <AnimatePresence>
-        {allRevealed && (
+        <AnimatePresence mode="wait">
           <motion.div
+            key={pi}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-5 rounded-2xl px-6 py-5"
-            style={{ background: 'linear-gradient(135deg,rgba(99,102,241,0.16),rgba(14,165,233,0.12))', border: '1px solid rgba(99,102,241,0.3)' }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="mt-8"
           >
-            <p className="font-display text-lg font-bold md:text-xl" style={{ color: '#1b1c2a' }}>
-              {KNOW_TRUST_POINT}
+            <p className="font-bold" style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.3rem, 3vw, 2rem)' }}>
+              {person.who}
             </p>
+            <p className="mt-1.5 text-base md:text-lg" style={{ color: 'var(--color-ink-soft)' }}>
+              {person.detail}
+            </p>
+
+            {/* the voting bar */}
+            <div className="mt-9 select-none">
+              <div
+                ref={barRef}
+                onClick={addVote}
+                className="relative h-5 w-full cursor-pointer rounded-full"
+                style={{ background: 'linear-gradient(90deg, #fecdd3, #fde68a, #bbf7d0)' }}
+              >
+                {/* votes */}
+                {myVotes.map((v, i) => (
+                  <span
+                    key={i}
+                    className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+                    style={{ left: `${v}%`, background: 'var(--color-ink)', opacity: 0.55 }}
+                  />
+                ))}
+                {/* class average */}
+                {avg !== null && (
+                  <motion.span
+                    layout
+                    className="absolute -top-2 bottom-[-8px] w-[3px] -translate-x-1/2 rounded-full"
+                    style={{ left: `${avg}%`, background: 'var(--color-accent)' }}
+                  />
+                )}
+                {/* revealed sensible spot */}
+                {isRevealed && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute -top-3 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white"
+                    style={{ left: `${person.suggested}%`, background: 'var(--color-safe)' }}
+                    title="A sensible spot"
+                  >
+                    ✓
+                  </motion.span>
+                )}
+              </div>
+              <div className="mt-2 flex justify-between text-xs font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+                <span>Just met online</span>
+                <span>Know them in real life</span>
+              </div>
+            </div>
+
+            {/* tally */}
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+              <span style={{ color: 'var(--color-ink-soft)' }}>
+                <strong style={{ color: 'var(--color-ink)' }}>{myVotes.length}</strong> vote{myVotes.length === 1 ? '' : 's'}
+              </span>
+              {avg !== null && (
+                <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
+                  class average: {bucket(avg)}
+                </span>
+              )}
+              {myVotes.length > 0 && (
+                <button onClick={clearVotes} className="font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* reveal / note */}
+            {!isRevealed ? (
+              <button
+                onClick={reveal}
+                className="press mt-6 rounded-full px-6 py-3 text-base font-bold"
+                style={{ background: 'var(--color-surface)', color: 'var(--color-accent)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+              >
+                Reveal a sensible spot
+              </button>
+            ) : (
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 max-w-2xl text-base md:text-lg"
+                style={{ color: 'var(--color-ink-soft)', lineHeight: 1.5 }}
+              >
+                {person.teacherNote}
+              </motion.p>
+            )}
           </motion.div>
-        )}
-      </AnimatePresence>
-    </SlideShell>
+        </AnimatePresence>
+
+        {/* person nav */}
+        <div className="mt-10 flex items-center justify-between">
+          <button
+            onClick={() => setPi((n) => Math.max(0, n - 1))}
+            disabled={pi === 0}
+            className="press rounded-full px-5 py-3 text-sm font-bold disabled:opacity-0"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-ink-soft)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          >
+            ← Back
+          </button>
+          <div className="flex gap-2">
+            {PEOPLE.map((_, n) => (
+              <span
+                key={n}
+                className="h-1.5 rounded-full transition-all"
+                style={{ width: n === pi ? 22 : 7, background: n === pi ? 'var(--color-accent)' : 'var(--color-hair-strong)' }}
+              />
+            ))}
+          </div>
+          <button
+            onClick={() => setPi((n) => Math.min(PEOPLE.length - 1, n + 1))}
+            disabled={lastPerson}
+            className="press rounded-full px-6 py-3 text-sm font-bold disabled:opacity-30"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-accent-ink)' }}
+          >
+            Next person →
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {allDone && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-9 font-bold"
+              style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.2rem, 2.6vw, 1.7rem)', lineHeight: 1.3 }}
+            >
+              {KNOW_TRUST_POINT}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   )
 }

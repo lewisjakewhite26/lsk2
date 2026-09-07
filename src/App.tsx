@@ -5,6 +5,7 @@ import { EntryGate } from './components/EntryGate'
 import { TitleSlide } from './slides/TitleSlide'
 import { WhiteflixSlide } from './slides/WhiteflixSlide'
 import { StarterSlide } from './slides/StarterSlide'
+import { VideoSlide } from './slides/VideoSlide'
 import { IdentitySlide } from './slides/IdentitySlide'
 import { AvatarBuilderSlide } from './slides/AvatarBuilderSlide'
 import { KnowTrustSlide } from './slides/KnowTrustSlide'
@@ -22,13 +23,14 @@ interface Step {
 const STEPS: Step[] = [
   { label: 'Learning', render: () => <TitleSlide /> },
   { label: 'Mr Whiteflix', render: () => <WhiteflixSlide /> },
-  { label: 'Starter', render: () => <StarterSlide /> },
+  { label: 'Big questions', render: () => <StarterSlide /> },
+  { label: 'Watch', render: () => <VideoSlide /> },
   { label: 'Identity', render: () => <IdentitySlide /> },
-  { label: 'Avatar builder', render: () => <AvatarBuilderSlide /> },
   { label: 'Know vs trust', render: () => <KnowTrustSlide /> },
   { label: 'Tone online', render: () => <WordsSlide /> },
   { label: 'Ask before sharing', render: () => <AskFirstSlide /> },
   { label: 'Turn and talk', render: () => <TalkSlide /> },
+  { label: 'Design your avatar', render: () => <AvatarBuilderSlide /> },
   { label: 'Quiz round', render: () => <QuizSlide /> },
   { label: 'Recap', render: () => <RecapSlide /> },
 ]

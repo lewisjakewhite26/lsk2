@@ -12,6 +12,7 @@ export const SUCCESS_CRITERIA: string[] = [
 
 export const VOCAB: { word: string; meaning: string }[] = [
   { word: 'identity', meaning: 'everything that makes you who you are' },
+  { word: 'self-image', meaning: 'the way you feel about yourself and your personality' },
   { word: 'avatar', meaning: 'a picture or character someone uses to represent themselves online' },
   { word: 'username', meaning: 'the name someone chooses to be known by online' },
   { word: 'know someone', meaning: 'to have spent enough real time with someone to be sure who they are' },

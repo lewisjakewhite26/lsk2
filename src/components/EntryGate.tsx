@@ -41,7 +41,7 @@ export function EntryGate({ onEnter }: { onEnter: () => void }) {
             className="mt-6 max-w-xl"
             style={{ color: 'var(--color-ink-soft)', fontSize: 'clamp(1.1rem, 2.3vw, 1.45rem)', lineHeight: 1.45 }}
           >
-            The things that make you <span style={{ color: 'var(--color-ink)', fontWeight: 700 }}>you</span> — and how you show them online.
+            The things that make you <span style={{ color: 'var(--color-ink)', fontWeight: 700 }}>you</span>, and how you show them online.
           </motion.p>
 
           <motion.button
