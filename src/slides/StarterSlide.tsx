@@ -17,7 +17,7 @@ export function StarterSlide() {
   const last = i === QUESTIONS.length - 1
 
   return (
-    <div className="m-auto flex min-h-full w-full flex-col px-8 py-12 md:px-20 md:py-16">
+    <div className="w-full flex flex-col px-8 py-12 md:px-20 md:py-16">
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <AnimatePresence mode="wait">
           <motion.div

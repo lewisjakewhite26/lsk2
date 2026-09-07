@@ -98,7 +98,7 @@ export function QuizSlide() {
   const showAnswers = phase !== 'question'
 
   return (
-    <div className="m-auto flex min-h-full w-full flex-col px-8 py-10 md:px-20 md:py-14">
+    <div className="w-full flex flex-col px-8 py-10 md:px-20 md:py-14">
       {/* progress */}
       <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--color-ink-faint)' }}>

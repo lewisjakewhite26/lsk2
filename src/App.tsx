@@ -107,7 +107,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.22, ease: EASE }}
-                className="flex min-h-full w-full"
+                className="flex min-h-[100dvh] w-full flex-col items-center justify-center"
               >
                 {step.render()}
               </motion.div>

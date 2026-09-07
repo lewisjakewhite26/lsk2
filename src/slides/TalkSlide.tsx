@@ -17,7 +17,7 @@ export function TalkSlide() {
   }
 
   return (
-    <div className="m-auto flex min-h-full w-full flex-col px-8 py-12 md:px-20 md:py-16">
+    <div className="w-full flex flex-col px-8 py-12 md:px-20 md:py-16">
       <Kicker>Turn and talk · {i + 1} of {TALK_CARDS.length}</Kicker>
 
       <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
