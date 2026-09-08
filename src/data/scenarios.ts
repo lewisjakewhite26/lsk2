@@ -44,20 +44,53 @@ export const PEOPLE: Person[] = [
 export const KNOW_TRUST_POINT =
   'Knowing someone takes real time together. Trust is built up slowly on top of that. If someone makes you feel uncomfortable, you can stop trusting them.'
 
-/* ---- "Words have weight": one message, read two ways ---- */
+/* ---- Tone online: the same message, read more than one way ---- */
 
-export const MESSAGE = 'wow you actually did that'
+export interface ToneReading {
+  label: string
+  meaning: string
+  /** 'warm' = kind/friendly reading, 'cold' = unkind/cross reading */
+  tone: 'warm' | 'cold'
+}
 
-export const READINGS = [
+export interface ToneExample {
+  id: string
+  text: string
+  readings: [ToneReading, ToneReading]
+}
+
+export const TONE_EXAMPLES: ToneExample[] = [
   {
-    tone: 'kind' as const,
-    label: 'Said with a smile',
-    meaning: 'They are impressed. It means "well done, that was brilliant."',
+    id: 'wow',
+    text: 'wow you actually did that',
+    readings: [
+      { tone: 'warm', label: 'Said with a smile', meaning: 'Impressed. It means “well done, that was brilliant!”' },
+      { tone: 'cold', label: 'Said with a sneer', meaning: 'Mean. It means “I can’t believe you were silly enough to do that.”' },
+    ],
   },
   {
-    tone: 'unkind' as const,
-    label: 'Said with a sneer',
-    meaning: 'They are being mean. It means "I can’t believe you were silly enough to do that."',
+    id: 'ok',
+    text: 'ok.',
+    readings: [
+      { tone: 'warm', label: 'Just agreeing', meaning: '“Sounds good. See you then.”' },
+      { tone: 'cold', label: 'Fed up', meaning: '“I don’t want to talk about this any more.”' },
+    ],
+  },
+  {
+    id: 'nice',
+    text: 'nice one',
+    readings: [
+      { tone: 'warm', label: 'Real praise', meaning: '“That was great — well done!”' },
+      { tone: 'cold', label: 'Sarcastic', meaning: '“That went badly, and I am not impressed.”' },
+    ],
+  },
+  {
+    id: 'serious',
+    text: 'are you being serious',
+    readings: [
+      { tone: 'warm', label: 'Curious', meaning: '“Wait — is that really true? Tell me more.”' },
+      { tone: 'cold', label: 'Cross', meaning: '“I can’t believe you just said that.”' },
+    ],
   },
 ]
 

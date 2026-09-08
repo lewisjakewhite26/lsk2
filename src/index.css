@@ -119,6 +119,40 @@ button {
   animation: focus-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* iMessage-style bubble (used only on the "tone online" slide) */
+.imsg {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+.imsg-in {
+  position: relative;
+  background: #e9e9eb;
+  color: #000;
+  border-radius: 20px;
+  padding: 9px 16px;
+}
+.imsg-in::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  left: -8px;
+  height: 19px;
+  width: 20px;
+  background: #e9e9eb;
+  border-bottom-right-radius: 16px;
+}
+.imsg-in::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: -12px;
+  height: 19px;
+  width: 12px;
+  background: #fff;
+  border-bottom-right-radius: 12px;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
