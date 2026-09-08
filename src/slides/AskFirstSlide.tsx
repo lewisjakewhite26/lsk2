@@ -49,7 +49,7 @@ export function AskFirstSlide() {
                     </p>
                   </motion.div>
                 ) : (
-                  <span className="mt-3 inline-block text-sm font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+                  <span className="mt-3 inline-block text-base font-semibold" style={{ color: 'var(--color-ink-soft)' }}>
                     Tap to check
                   </span>
                 )}

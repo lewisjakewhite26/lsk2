@@ -108,7 +108,7 @@ export function AvatarBuilderSlide() {
   const category = CATEGORIES[cat]
 
   return (
-    <div className="m-auto w-full px-8 py-12 md:px-20">
+    <div className="w-full px-8 py-12 md:px-20">
       <div className="mx-auto w-full max-w-5xl">
         <Kicker>Activity · build an avatar as a class</Kicker>
         <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.9rem, 4.4vw, 3rem)', lineHeight: 1.1 }}>

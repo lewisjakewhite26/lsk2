@@ -65,7 +65,7 @@ export function QuizSlide() {
     const msg =
       pct === 1 ? 'Every question right.' : pct >= 0.66 ? 'Well done.' : 'Good try. We will keep talking about this.'
     return (
-      <div className="m-auto flex w-full flex-col items-center px-8 py-16 text-center">
+      <div className="flex w-full flex-col items-center px-8 py-16 text-center">
         {pct >= 0.66 && <Confetti />}
         <p className="kicker">Quiz round</p>
         <motion.p
@@ -100,7 +100,7 @@ export function QuizSlide() {
       {phase === 'done' && <Confetti key={qi} />}
 
       <div className="mx-auto w-full max-w-3xl">
-        <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+        <div className="flex items-center justify-between text-sm font-semibold md:text-base" style={{ color: 'var(--color-ink-soft)' }}>
           <span className="kicker">Quiz round</span>
           <span style={{ fontVariantNumeric: 'tabular-nums' }}>
             Question {qi + 1} of {QUIZ.length}

@@ -25,7 +25,7 @@ export function SlideShell({
   wide?: boolean
 }) {
   return (
-    <div className="m-auto w-full px-8 py-14 md:px-20">
+    <div className="w-full px-8 py-14 md:px-20">
       <div className={`mx-auto w-full ${wide ? 'max-w-5xl' : 'max-w-3xl'}`}>
         {kicker && (
           <motion.div
@@ -78,23 +78,27 @@ export function RevealList({ items }: { items: { head: string; body?: string }[]
             className="press w-full rounded-2xl px-6 py-5 text-left"
             style={{
               background: shown ? 'var(--color-surface)' : 'transparent',
-              boxShadow: shown ? '0 1px 3px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.04)' : 'none',
-              opacity: shown ? 1 : 0.5,
+              boxShadow: shown
+                ? '0 1px 3px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.04)'
+                : 'inset 0 0 0 1px var(--color-hair)',
             }}
           >
             <div className="flex items-start gap-4">
               <span
-                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 style={{
                   background: shown ? 'var(--color-accent)' : 'transparent',
-                  color: shown ? '#fff' : 'var(--color-ink-faint)',
-                  border: shown ? 'none' : '1.5px solid var(--color-hair-strong)',
+                  color: shown ? '#fff' : 'var(--color-ink-soft)',
+                  border: shown ? 'none' : '2px solid var(--color-hair-strong)',
                 }}
               >
                 {i + 1}
               </span>
               <div>
-                <p className="text-lg font-bold md:text-xl" style={{ color: 'var(--color-ink)' }}>
+                <p
+                  className="text-lg font-bold md:text-xl"
+                  style={{ color: shown ? 'var(--color-ink)' : 'var(--color-ink-soft)' }}
+                >
                   {it.head}
                 </p>
                 {shown && it.body && (
@@ -108,7 +112,7 @@ export function RevealList({ items }: { items: { head: string; body?: string }[]
         )
       })}
       {open < items.length && (
-        <p className="mt-1 text-sm" style={{ color: 'var(--color-ink-faint)' }}>
+        <p className="mt-1 text-base font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
           Click to reveal the next point
         </p>
       )}

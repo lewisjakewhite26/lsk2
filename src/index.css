@@ -12,12 +12,13 @@
   --color-bg: #fbfaf8;
   --color-surface: #ffffff;
 
-  --color-ink: #1c1c1e;
-  --color-ink-soft: #62626a;
-  --color-ink-faint: #9a9aa2;
+  --color-ink: #17171a;
+  /* readable from the back of a classroom on a projector */
+  --color-ink-soft: #44444c;
+  --color-ink-faint: #63636b;
 
-  --color-hair: rgba(0, 0, 0, 0.08);
-  --color-hair-strong: rgba(0, 0, 0, 0.14);
+  --color-hair: rgba(0, 0, 0, 0.1);
+  --color-hair-strong: rgba(0, 0, 0, 0.24);
 
   --color-accent: #3b6df6;
   --color-accent-press: #2f59d6;
@@ -66,9 +67,9 @@ button {
 
 @utility kicker {
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   font-weight: 700;
-  font-size: clamp(0.68rem, 1.2vw, 0.82rem);
+  font-size: clamp(0.82rem, 1.4vw, 1rem);
   color: var(--color-ink-faint);
 }
 

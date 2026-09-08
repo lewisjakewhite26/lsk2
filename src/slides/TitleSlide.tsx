@@ -6,7 +6,7 @@ const EASE = [0.22, 1, 0.36, 1] as const
 
 export function TitleSlide() {
   return (
-    <div className="m-auto w-full px-8 py-16 md:px-20">
+    <div className="w-full px-8 py-16 md:px-20">
       <div className="mx-auto grid w-full max-w-5xl gap-12 md:grid-cols-[1.15fr_1fr] md:items-start">
         <div>
           <Kicker>Today’s learning</Kicker>

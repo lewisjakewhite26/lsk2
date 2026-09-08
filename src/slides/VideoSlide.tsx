@@ -6,7 +6,7 @@ const URL = 'https://www.bbc.co.uk/teach/articles/ztth9ty'
 
 export function VideoSlide() {
   return (
-    <div className="m-auto flex w-full flex-col items-center px-8 py-16 text-center md:px-20">
+    <div className="flex w-full flex-col items-center px-8 py-16 text-center md:px-20">
       <Kicker>Watch together · 3 min 39 sec</Kicker>
       <motion.h2
         initial={{ opacity: 0, y: 10 }}
@@ -38,7 +38,7 @@ export function VideoSlide() {
       >
         ▶ Watch on BBC Teach
       </motion.a>
-      <p className="mt-4 text-xs" style={{ color: 'var(--color-ink-faint)' }}>
+      <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-faint)' }}>
         bbc.co.uk/teach/articles/ztth9ty
       </p>
     </div>

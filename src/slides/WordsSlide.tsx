@@ -108,7 +108,7 @@ export function WordsSlide() {
             <Phone revealed={revealed} text={ex.text} onTap={() => setRevealed(true)} />
 
             {!revealed ? (
-              <p className="text-sm font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+              <p className="text-base font-semibold md:text-lg" style={{ color: 'var(--color-ink-soft)' }}>
                 Tap the phone to see the message
               </p>
             ) : (

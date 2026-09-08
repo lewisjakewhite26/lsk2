@@ -40,7 +40,7 @@ export function KnowTrustSlide() {
   }
 
   return (
-    <div className="m-auto w-full px-8 py-14 md:px-20">
+    <div className="w-full px-8 py-14 md:px-20">
       <div className="mx-auto w-full max-w-4xl">
         <Kicker>Know vs trust · vote as a class</Kicker>
         <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(2rem, 4.6vw, 3.2rem)', lineHeight: 1.1 }}>
@@ -100,14 +100,17 @@ export function KnowTrustSlide() {
                   </motion.span>
                 )}
               </div>
-              <div className="mt-2 flex justify-between text-xs font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+              <div
+                className="mt-2.5 flex justify-between text-sm font-semibold md:text-base"
+                style={{ color: 'var(--color-ink-soft)' }}
+              >
                 <span>Just met online</span>
                 <span>Know them in real life</span>
               </div>
             </div>
 
             {/* tally */}
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-base md:text-lg">
               <span style={{ color: 'var(--color-ink-soft)' }}>
                 <strong style={{ color: 'var(--color-ink)' }}>{myVotes.length}</strong> vote{myVotes.length === 1 ? '' : 's'}
               </span>
@@ -117,7 +120,7 @@ export function KnowTrustSlide() {
                 </span>
               )}
               {myVotes.length > 0 && (
-                <button onClick={clearVotes} className="font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
+                <button onClick={clearVotes} className="font-semibold underline" style={{ color: 'var(--color-ink-soft)' }}>
                   Clear
                 </button>
               )}

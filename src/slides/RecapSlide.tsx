@@ -13,7 +13,7 @@ const TAKEAWAYS = [
 
 export function RecapSlide() {
   return (
-    <div className="m-auto w-full px-8 py-16 md:px-20">
+    <div className="w-full px-8 py-16 md:px-20">
       <div className="mx-auto grid w-full max-w-5xl gap-12 md:grid-cols-2 md:items-start">
         <div>
           <Kicker>Recap</Kicker>
