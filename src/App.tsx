@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Background, FullscreenButton, ProgressRail, StepBadge } from './components/chrome'
 import { EntryGate } from './components/EntryGate'
+import { DeckNavContext, type SubNavHandler } from './deck'
 import { TitleSlide } from './slides/TitleSlide'
 import { WhiteflixSlide } from './slides/WhiteflixSlide'
 import { StarterSlide } from './slides/StarterSlide'
 import { VideoSlide } from './slides/VideoSlide'
 import { IdentitySlide } from './slides/IdentitySlide'
 import { AvatarBuilderSlide } from './slides/AvatarBuilderSlide'
+import { LinkSlide } from './slides/LinkSlide'
 import { KnowTrustSlide } from './slides/KnowTrustSlide'
 import { WordsSlide } from './slides/WordsSlide'
 import { AskFirstSlide } from './slides/AskFirstSlide'
@@ -26,11 +28,12 @@ const STEPS: Step[] = [
   { label: 'Big questions', render: () => <StarterSlide /> },
   { label: 'Watch', render: () => <VideoSlide /> },
   { label: 'Identity', render: () => <IdentitySlide /> },
+  { label: 'Design your avatar', render: () => <AvatarBuilderSlide /> },
+  { label: 'The other side', render: () => <LinkSlide /> },
   { label: 'Know vs trust', render: () => <KnowTrustSlide /> },
   { label: 'Tone online', render: () => <WordsSlide /> },
   { label: 'Ask before sharing', render: () => <AskFirstSlide /> },
   { label: 'Turn and talk', render: () => <TalkSlide /> },
-  { label: 'Design your avatar', render: () => <AvatarBuilderSlide /> },
   { label: 'Quiz round', render: () => <QuizSlide /> },
   { label: 'Recap', render: () => <RecapSlide /> },
 ]
@@ -51,7 +54,18 @@ export default function App() {
   const [entered, setEntered] = useState(start.entered)
   const [i, setI] = useState(start.i)
 
-  const go = useCallback((n: number) => setI(Math.max(0, Math.min(STEPS.length - 1, n))), [])
+  const subNav = useRef<SubNavHandler | null>(null)
+  const register = useCallback((h: SubNavHandler | null) => {
+    subNav.current = h
+  }, [])
+
+  const move = useCallback((dir: 1 | -1) => {
+    if (dir === 1 && subNav.current?.next()) return
+    if (dir === -1 && subNav.current?.prev()) return
+    setI((c) => Math.max(0, Math.min(STEPS.length - 1, c + dir)))
+  }, [])
+
+  const jump = useCallback((n: number) => setI(Math.max(0, Math.min(STEPS.length - 1, n))), [])
 
   useEffect(() => {
     if (!entered) return
@@ -67,10 +81,10 @@ export default function App() {
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (['ArrowRight', 'PageDown', ' '].includes(e.key)) {
         e.preventDefault()
-        setI((c) => Math.min(STEPS.length - 1, c + 1))
+        move(1)
       } else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
         e.preventDefault()
-        setI((c) => Math.max(0, c - 1))
+        move(-1)
       } else if (e.key === 'f' || e.key === 'F') {
         if (document.fullscreenElement) document.exitFullscreen()
         else document.documentElement.requestFullscreen().catch(() => {})
@@ -82,53 +96,55 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [entered])
+  }, [entered, move])
 
   const step = STEPS[i]
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <Background />
+    <DeckNavContext.Provider value={{ register }}>
+      <div className="relative h-full w-full overflow-hidden">
+        <Background />
 
-      <AnimatePresence>
-        {!entered && <EntryGate key="gate" onEnter={() => setEntered(true)} />}
-      </AnimatePresence>
+        <AnimatePresence>
+          {!entered && <EntryGate key="gate" onEnter={() => setEntered(true)} />}
+        </AnimatePresence>
 
-      {entered && (
-        <>
-          <StepBadge n={i + 1} total={STEPS.length} label={step.label} />
-          <FullscreenButton />
+        {entered && (
+          <>
+            <StepBadge n={i + 1} total={STEPS.length} label={step.label} />
+            <FullscreenButton />
 
-          <div className="h-full w-full overflow-y-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.22, ease: EASE }}
-                className="flex min-h-[100dvh] w-full flex-col items-center justify-start pt-[13vh] pb-28"
-              >
-                {step.render()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+            <div className="h-full w-full overflow-y-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.22, ease: EASE }}
+                  className="flex min-h-[100dvh] w-full flex-col items-center justify-start pt-[13vh] pb-28"
+                >
+                  {step.render()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-          {/* edge tap zones for smartboard */}
-          <button
-            aria-label="Previous"
-            onClick={() => go(i - 1)}
-            className="fixed left-0 top-1/2 z-30 h-32 w-10 -translate-y-1/2 opacity-0"
-          />
-          <button
-            aria-label="Next"
-            onClick={() => go(i + 1)}
-            className="fixed right-0 top-1/2 z-30 h-32 w-10 -translate-y-1/2 opacity-0"
-          />
+            {/* edge tap zones for smartboard */}
+            <button
+              aria-label="Previous"
+              onClick={() => move(-1)}
+              className="fixed left-0 top-1/2 z-30 h-32 w-10 -translate-y-1/2 opacity-0"
+            />
+            <button
+              aria-label="Next"
+              onClick={() => move(1)}
+              className="fixed right-0 top-1/2 z-30 h-32 w-10 -translate-y-1/2 opacity-0"
+            />
 
-          <ProgressRail labels={STEPS.map((s) => s.label)} index={i} onJump={go} />
-        </>
-      )}
-    </div>
+            <ProgressRail labels={STEPS.map((s) => s.label)} index={i} onJump={jump} />
+          </>
+        )}
+      </div>
+    </DeckNavContext.Provider>
   )
 }

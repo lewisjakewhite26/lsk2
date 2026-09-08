@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Lottie from 'lottie-react'
 import confetti from '../assets/confetti.json'
+import { useSubNav } from '../deck'
 import { QUIZ } from '../data/quiz'
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -58,6 +59,17 @@ export function QuizSlide() {
     setWrong(new Set())
     setShake(null)
   }
+
+  /* arrow keys / edge taps: walk the quiz, don't skip out of it mid-way */
+  useSubNav({
+    next: () => {
+      if (phase === 'score') return false
+      if (phase === 'question') setPhase('answers')
+      else if (phase === 'done') next()
+      return true
+    },
+    prev: () => phase !== 'score',
+  })
 
   /* ---- score ---- */
   if (phase === 'score') {
@@ -184,7 +196,15 @@ export function QuizSlide() {
                       >
                         {LETTERS[idx]}
                       </span>
-                      {opt}
+                      <span className="flex-1">{opt}</span>
+                      {isRightRevealed && (
+                        <span className="shrink-0 text-sm font-extrabold uppercase tracking-wide">✓ Correct</span>
+                      )}
+                      {isWrong && (
+                        <span className="shrink-0 text-sm font-bold uppercase tracking-wide" style={{ opacity: 0.85 }}>
+                          Try another
+                        </span>
+                      )}
                     </motion.button>
                   )
                 })}

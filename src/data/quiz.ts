@@ -45,15 +45,15 @@ export const QUIZ: QuizQuestion[] = [
   },
   {
     id: 'q4',
-    question: 'A new online friend is really kind and asks to chat on a different, private app. You should…',
+    question: 'Your friend says they wish they looked like a person they follow online. What is a good thing to say?',
     options: [
-      'Say yes — they seem nice',
-      'Tell a trusted adult',
-      'Give them your phone number first',
-      'Keep it a secret',
+      'You should try to look like them',
+      'Everyone online only shows their best bits — you are great as you are',
+      'Just stop following that person',
+      'Nothing, it is not your problem',
     ],
     answer: 1,
-    teach: 'Asking to move to a private chat is a warning sign. Telling a trusted adult is the right thing to do.',
+    teach: 'People online show their best, tidied-up version. Try not to compare yourself to it.',
   },
   {
     id: 'q5',

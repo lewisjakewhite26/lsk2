@@ -1,7 +1,7 @@
 /** Lesson metadata — single source of truth for objective + success criteria. */
 
 export const OBJECTIVE =
-  'I can explain how people choose to show themselves online, and why knowing someone online is different from trusting them.'
+  'I can explain how people show themselves online, and why I need to think carefully about who I trust and what I share.'
 
 export const SUCCESS_CRITERIA: string[] = [
   'I can explain what identity means and give examples of how someone can show themselves differently online.',

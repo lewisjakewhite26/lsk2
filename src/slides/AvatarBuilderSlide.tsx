@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Avatar, type AvatarSpec } from '../components/Avatar'
 import { Kicker } from '../components/ui'
+import { useSubSteps } from '../deck'
 
 interface Choice {
   label: string
@@ -104,7 +105,7 @@ function isActive(spec: AvatarSpec, patch: AvatarSpec) {
 
 export function AvatarBuilderSlide() {
   const [spec, setSpec] = useState<AvatarSpec>(BASE)
-  const [cat, setCat] = useState(0)
+  const [cat, setCat] = useSubSteps(CATEGORIES.length)
   const category = CATEGORIES[cat]
 
   return (

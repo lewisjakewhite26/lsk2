@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Kicker } from '../components/ui'
+import { useSubSteps } from '../deck'
 import { PEOPLE, KNOW_TRUST_POINT } from '../data/scenarios'
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -13,16 +13,15 @@ function bucket(v: number) {
 }
 
 export function KnowTrustSlide() {
-  const [pi, setPi] = useState(0)
+  const [pi, setPi] = useSubSteps(PEOPLE.length)
   const [votes, setVotes] = useState<number[][]>(() => PEOPLE.map(() => []))
   const [revealed, setRevealed] = useState<boolean[]>(() => PEOPLE.map(() => false))
-  const barRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLButtonElement>(null)
 
   const person = PEOPLE[pi]
   const myVotes = votes[pi]
   const avg = myVotes.length ? myVotes.reduce((a, b) => a + b, 0) / myVotes.length : null
   const isRevealed = revealed[pi]
-  const lastPerson = pi === PEOPLE.length - 1
   const allDone = revealed.every(Boolean)
 
   function addVote(e: React.MouseEvent) {
@@ -30,22 +29,25 @@ export function KnowTrustSlide() {
     if (!el) return
     const rect = el.getBoundingClientRect()
     const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
-    setVotes((v) => v.map((arr, i) => (i === pi ? [...arr, pct] : arr)))
+    setVotes((v) => v.map((arr, n) => (n === pi ? [...arr, pct] : arr)))
   }
   function clearVotes() {
-    setVotes((v) => v.map((arr, i) => (i === pi ? [] : arr)))
+    setVotes((v) => v.map((arr, n) => (n === pi ? [] : arr)))
   }
   function reveal() {
-    setRevealed((r) => r.map((b, i) => (i === pi ? true : b)))
+    setRevealed((r) => r.map((b, n) => (n === pi ? true : b)))
   }
 
   return (
-    <div className="w-full px-8 py-14 md:px-20">
+    <div className="w-full px-8 md:px-20">
       <div className="mx-auto w-full max-w-4xl">
-        <Kicker>Know vs trust · vote as a class</Kicker>
+        <p className="kicker">Know vs trust · person {pi + 1} of {PEOPLE.length}</p>
         <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(2rem, 4.6vw, 3.2rem)', lineHeight: 1.1 }}>
           Do you really know them?
         </h2>
+        <p className="mt-3 text-base md:text-lg" style={{ color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>
+          Tap the bar to add each vote. Where does the class think this person sits?
+        </p>
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -63,31 +65,27 @@ export function KnowTrustSlide() {
               {person.detail}
             </p>
 
-            {/* the voting bar */}
             <div className="mt-9 select-none">
-              <div
+              <button
                 ref={barRef}
                 onClick={addVote}
-                className="relative h-5 w-full cursor-pointer rounded-full"
+                aria-label="Add a vote on the scale"
+                className="relative block h-5 w-full cursor-pointer rounded-full"
                 style={{ background: 'linear-gradient(90deg, #fecdd3, #fde68a, #bbf7d0)' }}
               >
-                {/* votes */}
-                {myVotes.map((v, i) => (
+                {myVotes.map((v, n) => (
                   <span
-                    key={i}
-                    className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
-                    style={{ left: `${v}%`, background: 'var(--color-ink)', opacity: 0.55 }}
+                    key={n}
+                    className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+                    style={{ left: `${v}%`, background: 'var(--color-ink)', opacity: 0.6 }}
                   />
                 ))}
-                {/* class average */}
                 {avg !== null && (
-                  <motion.span
-                    layout
+                  <span
                     className="absolute -top-2 bottom-[-8px] w-[3px] -translate-x-1/2 rounded-full"
                     style={{ left: `${avg}%`, background: 'var(--color-accent)' }}
                   />
                 )}
-                {/* revealed sensible spot */}
                 {isRevealed && (
                   <motion.span
                     initial={{ opacity: 0, scale: 0.6 }}
@@ -99,7 +97,7 @@ export function KnowTrustSlide() {
                     ✓
                   </motion.span>
                 )}
-              </div>
+              </button>
               <div
                 className="mt-2.5 flex justify-between text-sm font-semibold md:text-base"
                 style={{ color: 'var(--color-ink-soft)' }}
@@ -109,15 +107,13 @@ export function KnowTrustSlide() {
               </div>
             </div>
 
-            {/* tally */}
             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-base md:text-lg">
               <span style={{ color: 'var(--color-ink-soft)' }}>
-                <strong style={{ color: 'var(--color-ink)' }}>{myVotes.length}</strong> vote{myVotes.length === 1 ? '' : 's'}
+                <strong style={{ color: 'var(--color-ink)' }}>{myVotes.length}</strong> vote
+                {myVotes.length === 1 ? '' : 's'}
               </span>
               {avg !== null && (
-                <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
-                  class average: {bucket(avg)}
-                </span>
+                <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>class average: {bucket(avg)}</span>
               )}
               {myVotes.length > 0 && (
                 <button onClick={clearVotes} className="font-semibold underline" style={{ color: 'var(--color-ink-soft)' }}>
@@ -126,7 +122,6 @@ export function KnowTrustSlide() {
               )}
             </div>
 
-            {/* reveal / note */}
             {!isRevealed ? (
               <button
                 onClick={reveal}
@@ -148,28 +143,18 @@ export function KnowTrustSlide() {
           </motion.div>
         </AnimatePresence>
 
-        {/* person nav */}
-        <div className="mt-10 flex items-center justify-between">
+        <div className="mt-9 flex gap-3">
           <button
-            onClick={() => setPi((n) => Math.max(0, n - 1))}
+            onClick={() => setPi(Math.max(0, pi - 1))}
             disabled={pi === 0}
             className="press rounded-full px-5 py-3 text-sm font-bold disabled:opacity-0"
             style={{ background: 'var(--color-surface)', color: 'var(--color-ink-soft)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
           >
             ← Back
           </button>
-          <div className="flex gap-2">
-            {PEOPLE.map((_, n) => (
-              <span
-                key={n}
-                className="h-1.5 rounded-full transition-all"
-                style={{ width: n === pi ? 22 : 7, background: n === pi ? 'var(--color-accent)' : 'var(--color-hair-strong)' }}
-              />
-            ))}
-          </div>
           <button
-            onClick={() => setPi((n) => Math.min(PEOPLE.length - 1, n + 1))}
-            disabled={lastPerson}
+            onClick={() => setPi(Math.min(PEOPLE.length - 1, pi + 1))}
+            disabled={pi === PEOPLE.length - 1}
             className="press rounded-full px-6 py-3 text-sm font-bold disabled:opacity-30"
             style={{ background: 'var(--color-accent)', color: 'var(--color-accent-ink)' }}
           >
@@ -182,8 +167,8 @@ export function KnowTrustSlide() {
             <motion.p
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-9 font-bold"
-              style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.2rem, 2.6vw, 1.7rem)', lineHeight: 1.3 }}
+              className="mt-8 font-bold"
+              style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.2rem, 2.6vw, 1.7rem)', lineHeight: 1.35 }}
             >
               {KNOW_TRUST_POINT}
             </motion.p>

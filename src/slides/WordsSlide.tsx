@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Kicker } from '../components/ui'
+import { useSubSteps } from '../deck'
 import { TONE_EXAMPLES, WORDS_POINT } from '../data/scenarios'
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -69,7 +70,7 @@ function Phone({ revealed, text, onTap }: { revealed: boolean; text: string; onT
 }
 
 export function WordsSlide() {
-  const [ei, setEi] = useState(0)
+  const [ei, setEi] = useSubSteps(TONE_EXAMPLES.length)
   const [revealed, setRevealed] = useState(false)
   const [pick, setPick] = useState<number | null>(null)
 
@@ -77,10 +78,13 @@ export function WordsSlide() {
   const last = ei === TONE_EXAMPLES.length - 1
   const done = last && pick !== null
 
-  function goto(n: number) {
-    setEi(n)
+  useEffect(() => {
     setRevealed(false)
     setPick(null)
+  }, [ei])
+
+  function goto(n: number) {
+    setEi(n)
   }
 
   return (

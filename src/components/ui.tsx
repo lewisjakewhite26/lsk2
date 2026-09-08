@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { useSubSteps } from '../deck'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -66,7 +67,7 @@ export function SlideShell({
 /* ---------------------------------------------------------------- */
 
 export function RevealList({ items }: { items: { head: string; body?: string }[] }) {
-  const [open, setOpen] = useState(0)
+  const [open, setOpen] = useSubSteps(items.length + 1)
   return (
     <div className="grid gap-3">
       {items.map((it, i) => {

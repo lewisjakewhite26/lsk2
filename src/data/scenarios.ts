@@ -29,20 +29,20 @@ export const PEOPLE: Person[] = [
     id: 'teammate',
     who: 'A player on your game team',
     detail: 'You have played together most days for a few months. You have never met.',
-    suggested: 40,
-    teacherNote: 'You have chatted a lot, but you have never met. You cannot be sure who they really are.',
+    suggested: 38,
+    teacherNote: 'You have chatted a lot, but you have never met. You cannot be completely sure who they are.',
   },
   {
-    id: 'newplayer',
-    who: 'A player you met in a game yesterday',
-    detail: 'They were kind, funny, and asked to be friends and chat somewhere else.',
-    suggested: 8,
-    teacherNote: 'Being friendly for one day is not the same as knowing someone. Asking to move to a private chat is a warning sign. Tell a trusted adult.',
+    id: 'youtuber',
+    who: 'A YouTuber you watch every day',
+    detail: 'You have watched their videos for a year. You feel like you know them.',
+    suggested: 6,
+    teacherNote: 'You know a lot about them — but they have never met you. It only goes one way, so you do not really know each other.',
   },
 ]
 
 export const KNOW_TRUST_POINT =
-  'Knowing someone takes real time together. Trust is built up slowly on top of that. If someone makes you feel uncomfortable, you can stop trusting them.'
+  'Knowing someone takes real time together. Trust is built up slowly on top of that. If someone online ever makes you feel uncomfortable, you can stop, and tell a trusted adult.'
 
 /* ---- Tone online: the same message, read more than one way ---- */
 
