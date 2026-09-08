@@ -110,7 +110,7 @@ export function AvatarBuilderSlide() {
   return (
     <div className="m-auto w-full px-8 py-12 md:px-20">
       <div className="mx-auto w-full max-w-5xl">
-        <Kicker>Task · build one together, then make your own</Kicker>
+        <Kicker>Activity · build an avatar as a class</Kicker>
         <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.9rem, 4.4vw, 3rem)', lineHeight: 1.1 }}>
           Design and label your avatar
         </h2>
@@ -175,16 +175,6 @@ export function AvatarBuilderSlide() {
             </div>
 
           </div>
-        </div>
-
-        <div className="card mt-8 p-6">
-          <p className="text-lg font-bold" style={{ color: 'var(--color-ink)' }}>
-            Now make your own on paper
-          </p>
-          <p className="mt-2 text-base md:text-lg" style={{ color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>
-            Draw an avatar for a new game. Add <strong>3 labels</strong>. Each one should say something that is
-            <strong> true to the real you</strong>, not just what looks cool.
-          </p>
         </div>
       </div>
     </div>
