@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Avatar, type AvatarSpec } from '../components/Avatar'
 import { Kicker } from '../components/ui'
 
 interface Choice {
   label: string
   patch: AvatarSpec
+  swatch?: string
 }
 interface Category {
   key: string
@@ -15,13 +15,25 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   {
+    key: 'skin',
+    label: 'Skin',
+    choices: [
+      { label: '', swatch: '#ffdbb4', patch: { skinColor: ['ffdbb4'] } },
+      { label: '', swatch: '#edb98a', patch: { skinColor: ['edb98a'] } },
+      { label: '', swatch: '#d08b5b', patch: { skinColor: ['d08b5b'] } },
+      { label: '', swatch: '#ae5d29', patch: { skinColor: ['ae5d29'] } },
+      { label: '', swatch: '#614335', patch: { skinColor: ['614335'] } },
+    ],
+  },
+  {
     key: 'hair',
     label: 'Hair',
     choices: [
-      { label: 'Short', patch: { top: ['shortHairShortFlat'] } },
-      { label: 'Curly', patch: { top: ['shortHairShortCurly'] } },
-      { label: 'Long', patch: { top: ['longHairStraight'] } },
-      { label: 'Bun', patch: { top: ['longHairBun'] } },
+      { label: 'Short', patch: { top: ['shortFlat'] } },
+      { label: 'Curly', patch: { top: ['shortCurly'] } },
+      { label: 'Afro', patch: { top: ['fro'] } },
+      { label: 'Long', patch: { top: ['straight01'] } },
+      { label: 'Bun', patch: { top: ['bun'] } },
       { label: 'Hat', patch: { top: ['winterHat1'] } },
     ],
   },
@@ -29,11 +41,12 @@ const CATEGORIES: Category[] = [
     key: 'colour',
     label: 'Hair colour',
     choices: [
-      { label: 'Brown', patch: { hairColor: ['2c1b18'] } },
-      { label: 'Black', patch: { hairColor: ['090806'] } },
-      { label: 'Blonde', patch: { hairColor: ['d6b370'] } },
-      { label: 'Red', patch: { hairColor: ['a55728'] } },
-      { label: 'Pink', patch: { hairColor: ['f59797'] } },
+      { label: '', swatch: '#2c1b18', patch: { hairColor: ['2c1b18'] } },
+      { label: '', swatch: '#724133', patch: { hairColor: ['724133'] } },
+      { label: '', swatch: '#b58143', patch: { hairColor: ['b58143'] } },
+      { label: '', swatch: '#d6b370', patch: { hairColor: ['d6b370'] } },
+      { label: '', swatch: '#c93305', patch: { hairColor: ['c93305'] } },
+      { label: '', swatch: '#e8a4c4', patch: { hairColor: ['e8a4c4'] } },
     ],
   },
   {
@@ -70,9 +83,9 @@ const CATEGORIES: Category[] = [
 
 const BASE: AvatarSpec = {
   seed: 'me-online',
-  top: ['shortHairShortFlat'],
+  top: ['shortFlat'],
   hairColor: ['2c1b18'],
-  skinColor: ['light'],
+  skinColor: ['edb98a'],
   clothing: ['hoodie'],
   clothesColor: ['3b6df6'],
   accessories: [],
@@ -81,24 +94,30 @@ const BASE: AvatarSpec = {
   mouth: ['smile'],
 }
 
+/** does the current spec already match this choice's patch? */
+function isActive(spec: AvatarSpec, patch: AvatarSpec) {
+  return Object.entries(patch).every(([k, v]) => {
+    const cur = (spec as Record<string, unknown>)[k]
+    return JSON.stringify(cur) === JSON.stringify(v)
+  })
+}
+
 export function AvatarBuilderSlide() {
   const [spec, setSpec] = useState<AvatarSpec>(BASE)
   const [cat, setCat] = useState(0)
   const category = CATEGORIES[cat]
 
   return (
-    <div className="m-auto w-full px-8 py-14 md:px-20">
+    <div className="m-auto w-full px-8 py-12 md:px-20">
       <div className="mx-auto w-full max-w-5xl">
         <Kicker>Task · build one together, then make your own</Kicker>
         <h2 className="mt-4" style={{ color: 'var(--color-ink)', fontSize: 'clamp(1.9rem, 4.4vw, 3rem)', lineHeight: 1.1 }}>
           Design and label your avatar
         </h2>
 
-        <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="card flex items-center justify-center p-6">
-            <motion.div key={JSON.stringify(spec)} initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.16 }}>
-              <Avatar spec={spec} size={228} />
-            </motion.div>
+        <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,300px)_1fr] md:items-center">
+          <div className="card flex items-center justify-center p-5">
+            <Avatar spec={spec} size={248} />
           </div>
 
           <div>
@@ -119,29 +138,53 @@ export function AvatarBuilderSlide() {
               ))}
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-              {category.choices.map((ch) => (
-                <button
-                  key={ch.label}
-                  onClick={() => setSpec((s) => ({ ...s, ...ch.patch }))}
-                  className="press card px-3 py-3 text-sm font-bold"
-                  style={{ color: 'var(--color-ink)' }}
-                >
-                  {ch.label}
-                </button>
-              ))}
+            <div className="mt-5 flex flex-wrap gap-3">
+              {category.choices.map((ch, n) => {
+                const active = isActive(spec, ch.patch)
+                if (ch.swatch) {
+                  return (
+                    <button
+                      key={n}
+                      onClick={() => setSpec((s) => ({ ...s, ...ch.patch }))}
+                      aria-label={`${category.label} option ${n + 1}`}
+                      className="press h-12 w-12 rounded-full"
+                      style={{
+                        background: ch.swatch,
+                        boxShadow: active
+                          ? '0 0 0 3px var(--color-accent), 0 0 0 5px var(--color-surface)'
+                          : '0 0 0 1px var(--color-hair)',
+                      }}
+                    />
+                  )
+                }
+                return (
+                  <button
+                    key={n}
+                    onClick={() => setSpec((s) => ({ ...s, ...ch.patch }))}
+                    className="press rounded-xl px-4 py-3 text-sm font-bold"
+                    style={
+                      active
+                        ? { background: 'var(--color-accent)', color: '#fff' }
+                        : { background: 'var(--color-surface)', color: 'var(--color-ink)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                    }
+                  >
+                    {ch.label}
+                  </button>
+                )
+              })}
             </div>
 
-            <div className="card mt-6 p-5">
-              <p className="text-base font-bold" style={{ color: 'var(--color-ink)' }}>
-                Now make your own on paper
-              </p>
-              <p className="mt-1.5 text-sm md:text-base" style={{ color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>
-                Draw an avatar for a new game. Add <strong>3 labels</strong> — each one should say something that is
-                <strong> true to the real you</strong>, not just what looks cool.
-              </p>
-            </div>
           </div>
+        </div>
+
+        <div className="card mt-8 p-6">
+          <p className="text-lg font-bold" style={{ color: 'var(--color-ink)' }}>
+            Now make your own on paper
+          </p>
+          <p className="mt-2 text-base md:text-lg" style={{ color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>
+            Draw an avatar for a new game. Add <strong>3 labels</strong>. Each one should say something that is
+            <strong> true to the real you</strong>, not just what looks cool.
+          </p>
         </div>
       </div>
     </div>

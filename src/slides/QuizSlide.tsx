@@ -1,37 +1,23 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Lottie from 'lottie-react'
+import confetti from '../assets/confetti.json'
 import { QUIZ } from '../data/quiz'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 const LETTERS = ['A', 'B', 'C', 'D']
 
-type Phase = 'question' | 'answering' | 'checked' | 'score'
+type Phase = 'question' | 'answers' | 'done' | 'score'
 
-function Particles() {
-  const bits = useMemo(
-    () =>
-      Array.from({ length: 26 }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        delay: Math.random() * 0.5,
-        dur: 2.6 + Math.random() * 1.6,
-        colour: ['#3b6df6', '#1fa971', '#1c1c1e'][i % 3],
-        size: 6 + Math.random() * 7,
-      })),
-    [],
-  )
+function Confetti() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-30 overflow-hidden">
-      {bits.map((b) => (
-        <motion.span
-          key={b.id}
-          initial={{ y: '-8vh', opacity: 0 }}
-          animate={{ y: '110vh', opacity: [0, 1, 1, 0.15] }}
-          transition={{ duration: b.dur, delay: b.delay, ease: 'linear' }}
-          className="absolute block rounded-sm"
-          style={{ left: `${b.left}%`, width: b.size, height: b.size, background: b.colour }}
-        />
-      ))}
+    <div className="pointer-events-none fixed inset-0 z-40 flex items-start justify-center overflow-hidden">
+      <Lottie
+        animationData={confetti}
+        loop={false}
+        autoplay
+        style={{ width: 'min(90vw, 900px)', height: 'min(90vh, 900px)' }}
+      />
     </div>
   )
 }
@@ -39,7 +25,8 @@ function Particles() {
 export function QuizSlide() {
   const [qi, setQi] = useState(0)
   const [phase, setPhase] = useState<Phase>('question')
-  const [picked, setPicked] = useState<number | null>(null)
+  const [wrong, setWrong] = useState<Set<number>>(new Set())
+  const [shake, setShake] = useState<{ idx: number; tick: number } | null>(null)
   const [score, setScore] = useState(0)
 
   const q = QUIZ[qi]
@@ -48,28 +35,38 @@ export function QuizSlide() {
   function reset() {
     setQi(0)
     setPhase('question')
-    setPicked(null)
+    setWrong(new Set())
+    setShake(null)
     setScore(0)
   }
-  function check() {
-    if (picked === null) return
-    if (picked === q.answer) setScore((s) => s + 1)
-    setPhase('checked')
+
+  function tap(idx: number) {
+    if (phase !== 'answers') return
+    if (idx === q.answer) {
+      if (wrong.size === 0) setScore((s) => s + 1)
+      setPhase('done')
+    } else {
+      setWrong((w) => new Set(w).add(idx))
+      setShake((s) => ({ idx, tick: (s?.tick ?? 0) + 1 }))
+    }
   }
+
   function next() {
     if (last) return setPhase('score')
     setQi((n) => n + 1)
-    setPicked(null)
-    setPhase('question')
+    setPhase('answers')
+    setWrong(new Set())
+    setShake(null)
   }
 
+  /* ---- score ---- */
   if (phase === 'score') {
     const pct = score / QUIZ.length
     const msg =
       pct === 1 ? 'Every question right.' : pct >= 0.66 ? 'Well done.' : 'Good try. We will keep talking about this.'
     return (
       <div className="m-auto flex w-full flex-col items-center px-8 py-16 text-center">
-        {pct >= 0.66 && <Particles />}
+        {pct >= 0.66 && <Confetti />}
         <p className="kicker">Quiz round</p>
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -96,10 +93,12 @@ export function QuizSlide() {
   }
 
   const showAnswers = phase !== 'question'
+  const progress = ((qi + (phase === 'done' ? 1 : 0)) / QUIZ.length) * 100
 
   return (
     <div className="w-full flex flex-col px-8 py-10 md:px-20 md:py-14">
-      {/* progress */}
+      {phase === 'done' && <Confetti key={qi} />}
+
       <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--color-ink-faint)' }}>
           <span className="kicker">Quiz round</span>
@@ -111,13 +110,12 @@ export function QuizSlide() {
           <motion.div
             className="h-full"
             style={{ background: 'var(--color-accent)' }}
-            animate={{ width: `${((qi + (phase === 'checked' ? 1 : 0)) / QUIZ.length) * 100}%` }}
+            animate={{ width: `${progress}%` }}
             transition={{ duration: 0.4, ease: EASE }}
           />
         </div>
       </div>
 
-      {/* question + answers, on a calm surface so it isn't floating */}
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center py-8">
         <div className="card px-8 py-10 md:px-12 md:py-14">
           <AnimatePresence mode="wait">
@@ -144,30 +142,39 @@ export function QuizSlide() {
                 className="mt-8 grid gap-3"
               >
                 {q.options.map((opt, idx) => {
-                  const isAnswer = idx === q.answer
-                  const isPicked = idx === picked
+                  const isWrong = wrong.has(idx)
+                  const isRightRevealed = phase === 'done' && idx === q.answer
                   let s: React.CSSProperties = {
                     color: 'var(--color-ink)',
                     background: 'var(--color-bg)',
                     boxShadow: 'inset 0 0 0 1px var(--color-hair)',
                   }
-                  if (phase === 'answering' && isPicked)
-                    s = { color: '#fff', background: 'var(--color-accent)', boxShadow: 'none' }
-                  if (phase === 'checked' && isAnswer)
+                  if (isWrong)
+                    s = {
+                      color: 'var(--color-warn)',
+                      background: 'rgba(229,72,77,0.07)',
+                      boxShadow: 'inset 0 0 0 1px rgba(229,72,77,0.4), 0 6px 22px rgba(229,72,77,0.22)',
+                    }
+                  if (isRightRevealed)
                     s = { color: '#fff', background: 'var(--color-safe)', boxShadow: 'none' }
-                  if (phase === 'checked' && isPicked && !isAnswer)
-                    s = { color: '#fff', background: 'var(--color-warn)', boxShadow: 'none' }
+
+                  const doShake = shake?.idx === idx
                   return (
                     <motion.button
                       key={idx}
                       initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.22, ease: EASE, delay: idx * 0.05 }}
-                      disabled={phase === 'checked'}
-                      onClick={() => {
-                        setPicked(idx)
-                        setPhase('answering')
-                      }}
+                      animate={
+                        doShake
+                          ? { opacity: 1, y: 0, x: [0, -9, 9, -7, 7, -3, 0] }
+                          : { opacity: 1, y: 0, x: 0 }
+                      }
+                      transition={
+                        doShake
+                          ? { x: { duration: 0.42, ease: 'easeInOut' }, opacity: { duration: 0.2 } }
+                          : { duration: 0.22, ease: EASE, delay: idx * 0.05 }
+                      }
+                      disabled={phase !== 'answers' || isWrong}
+                      onClick={() => tap(idx)}
                       className="press flex items-center gap-4 rounded-2xl px-5 py-4 text-left font-semibold"
                       style={{ ...s, fontSize: 'clamp(1.05rem, 2.1vw, 1.4rem)' }}
                     >
@@ -186,7 +193,7 @@ export function QuizSlide() {
           </AnimatePresence>
 
           <AnimatePresence>
-            {phase === 'checked' && (
+            {phase === 'done' && (
               <motion.p
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -201,28 +208,17 @@ export function QuizSlide() {
         </div>
       </div>
 
-      {/* one action, right */}
       <div className="mx-auto flex w-full max-w-3xl justify-end">
         {phase === 'question' && (
           <button
-            onClick={() => setPhase('answering')}
+            onClick={() => setPhase('answers')}
             className="press rounded-full px-8 py-4 text-lg font-bold"
             style={{ background: 'var(--color-accent)', color: '#fff' }}
           >
             Show the answers
           </button>
         )}
-        {phase === 'answering' && (
-          <button
-            onClick={check}
-            disabled={picked === null}
-            className="press rounded-full px-8 py-4 text-lg font-bold disabled:opacity-40"
-            style={{ background: 'var(--color-accent)', color: '#fff' }}
-          >
-            Check answer
-          </button>
-        )}
-        {phase === 'checked' && (
+        {phase === 'done' && (
           <button
             onClick={next}
             className="press rounded-full px-8 py-4 text-lg font-bold"

@@ -3,7 +3,8 @@ import { createAvatar } from '@dicebear/core'
 import { avataaars } from '@dicebear/collection'
 
 /* Avataaars (via DiceBear) — inline SVG, no network, bundles into the
- * standalone file. Options mirror getavataaars.com. */
+ * standalone file. NB DiceBear's option names differ from getavataaars.com
+ * (e.g. `shortFlat`, `straight01`, `bun`, `winterHat1`). */
 
 export interface AvatarSpec {
   seed?: string
@@ -26,7 +27,8 @@ export function Avatar({ spec, size = 220 }: { spec: AvatarSpec; size?: number }
     const options = {
       size,
       radius: 50,
-      backgroundColor: ['ffffff'],
+      scale: 88, // headroom so hats / buns aren't clipped by the round crop
+      backgroundColor: ['f2f2f5'],
       accessoriesProbability: spec.accessories?.length ? 100 : 0,
       facialHairProbability: spec.facialHair?.length ? 100 : 0,
       ...spec,
@@ -41,18 +43,4 @@ export function Avatar({ spec, size = 220 }: { spec: AvatarSpec; size?: number }
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )
-}
-
-/* The persona for the hook. Placeholder styling until Lewis supplies
- * the real generated look + the Netflix / Facebook images. */
-export const PRIYA: AvatarSpec = {
-  seed: 'priya-me-online',
-  top: ['longHairStraight'],
-  hairColor: ['2c1b18'],
-  skinColor: ['brown'],
-  clothing: ['hoodie'],
-  clothesColor: ['3b6df6'],
-  eyes: ['default'],
-  eyebrows: ['defaultNatural'],
-  mouth: ['smile'],
 }
